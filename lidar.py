@@ -42,11 +42,14 @@ def crc(sample):
 
 ##################################LiDAR##################################
    
-parser = argparse.ArgumentParser(
+parser = argparse.ArgumentParser(prog="LRPS", 
+                    description="Sistema de posicionamento por LiDAR do LiTS",
                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("-d", "--device", help="device to read from", 
                      default="/dev/ttyUSB0")
-parser.add_argument("modo", help="teste", choices=['log', 'plot', 
+parser.add_argument("-plot", "--plot", help="plotagem, por hora, somente em modo detect", 
+                     default=False)
+parser.add_argument("modo", help="modo de operação do script", choices=['log', 
                     'show', 'debug', 'detect'])
 args = parser.parse_args()
 
