@@ -7,7 +7,9 @@ import sys
 import h5py
 import statistics
 import math
-#import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
 
 ##################################CRC##################################
 CRCtable = (0x00, 0x4d, 0x9a, 0xd7, 0x79, 0x34, 0xe3, 0xae, 0xf2, 0xbf, 0x68, 0x25, 
@@ -42,13 +44,14 @@ def crc(sample):
 
 ##################################LiDAR##################################
    
-parser = argparse.ArgumentParser(prog="LPS", 
-                    description="Sistema de posicionamento por LiDAR do LiTS",
-                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = argparse.ArgumentParser(prog="lps", 
+                    description="Sistema de posicionamento por do LITS",
+                    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                    epilog='Calma, vai dar tudo certo!')
 parser.add_argument("-d", "--device", help="device to read from", 
                      default="/dev/ttyUSB0")
-parser.add_argument("-plot", "--plot", help="plotagem, por hora, somente em modo detect", 
-                     default=False)
+parser.add_argument("-p", help="plotagem, por hora, somente em modo detect", 
+                     action="store_true")
 parser.add_argument("modo", help="modo de operação do script", choices=['log', 
                     'show', 'debug', 'detect'])
 args = parser.parse_args()
@@ -79,7 +82,10 @@ with serial.Serial(args.device, 230400) as ser:
         criterio = 150
         sweep = [[0 for i in range(4)] for j in range(500)] 
         direcoes = []
-        distancias = []     
+        distancias = [] 
+        if(args.p):
+            x = 1
+            
     try:
         ser.flush()
         head = b'\x54\x2c'
@@ -150,10 +156,11 @@ with serial.Serial(args.device, 230400) as ser:
                             if dirmed>36000:
                                 dirmed -= 36000
                             amostras = len(distancias)
-                            
                             print("\t"+str(f"{int(dirmed/100):03d}")+"º\t\t"+ 
                                     str(f"{dismed:05d}")+" mm\t\t"+
                                     str(amostras), end='\r')
+                            if(args.p):
+                                x = 1
                         else:
                             print("\t-     \t\t-        \t\t-     ", end='\r')
                         vert=0
