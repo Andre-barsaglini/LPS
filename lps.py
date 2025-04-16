@@ -74,11 +74,11 @@ with serial.Serial(args.device, 230400) as ser:
         print("\n")
         print("\tCtrl+C para parar!")
         print("\n")
-        print("\tdirecao:\tdistancia:\tamostras:")
+        print("\tdirecao:\tdistancia:\tamostras:\ttamanho:")
         cur = [0,40000,0,0]
         vert=0
         basedis = 30
-        radius = 200
+        radius = 160
         criterio = 150
         sweep = [[0 for i in range(4)] for j in range(500)] 
         direcoes = []
@@ -135,7 +135,7 @@ with serial.Serial(args.device, 230400) as ser:
                 print("\n")
                 print("erros de CRC: "+str(erros))    
                 print("CTRL + C para finalizar")
-                print("=====================================================================")
+                print("=========================================================")
                 print("\n")
 ##################################"show"##################################
             if (args.modo =="show"):
@@ -153,23 +153,31 @@ with serial.Serial(args.device, 230400) as ser:
                                     if (direcoes[i]<20000):
                                         direcoes[i] += 36000
                             dirmed = int(statistics.mean(direcoes))
+                            diametro = int(((max(direcoes)-min(direcoes))/
+                                            36000)*2*3.1415*dismed*1.1)
                             if dirmed>36000:
                                 dirmed -= 36000
                             amostras = len(distancias)
+                            print("\t-     \t\t-        \t-     \t\t-      ", 
+                                    end='\r')
                             print("\t"+str(f"{int(dirmed/100):03d}")+"º\t\t"+ 
-                                    str(f"{dismed:05d}")+" mm\t\t"+
-                                    str(amostras), end='\r')
+                                    str(f"{dismed:05d}")+" mm\t"+
+                                    str(amostras) + "\t\t"+
+                                    str(f"{diametro:03d}"), end='\r')
                             if(args.p):
                                 x = 1
                         else:
-                            print("\t-     \t\t-        \t\t-     ", end='\r')
+                            print("\t-     \t\t-        \t-     \t\t-      ", 
+                                    end='\r')
                         vert=0
                         direcoes.clear()
                         distancias.clear()
                         sweep.clear()
                         sweep = [[0 for i in range(4)] for j in range(500)]
                     cur = meas[m]
-                    if(meas[m][0]>basedis and  meas[m][0]<radius and meas[m][2]>criterio):
+                    if (meas[m][0]>basedis and 
+                            meas[m][0]<radius and
+                            meas[m][2]>criterio):
                         sweep[vert] = cur
                         vert+=1
                         direcoes.append(meas[m][1])
@@ -180,6 +188,7 @@ with serial.Serial(args.device, 230400) as ser:
 ##################################fim##################################               
     except KeyboardInterrupt:
         if(args.modo == "log"):
-            print("Log finalizado as: "+str(datetime.datetime.now().strftime("%H:%M:%S:%f")))
+            print("Log finalizado as: "+
+                    str(datetime.datetime.now().strftime("%H:%M:%S:%f")))
             f.close()
         print("\nFim")
